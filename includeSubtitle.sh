@@ -33,6 +33,8 @@ function encodeWithSubtitle {
 
   echo ========== include SUBTITLE in $MOVIE ==========
   mencoder "$MOVIE" -ovc xvid -xvidencopts bitrate=900 -oac mp3lame -sub "$SUBTITLE.converted" -subcp utf8 -o "$BASE_NAME"stfr.$MOVIE_EXT
+  #mencoder "$MOVIE" -oac mp3lame -lameopts abr:br=128 -ovc x264 -x264encopts pass=1:subq=1:frameref=2:threads=auto -sub "$SUBTITLE.converted" -subcp utf8 -o /dev/null # OK
+  #mencoder "$MOVIE" -oac mp3lame -lameopts abr:br=128 -ovc x264 -x264encopts pass=2:subq=5:frameref=6:threads=auto:bitrate=10000 -sub "$SUBTITLE.converted" -subcp utf8 -o "$BASE_NAME"stfr.$MOVIE_EXT # OK
   if [ $? -ne 0 ];
     then
     echo error when re-encoding $MOVIE with $SUBTITLE

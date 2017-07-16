@@ -56,7 +56,8 @@ LOG="$0".log
 cd "$DIRECTORY"
 echo parameter = $DIRECTORY > $LOG
 for MOVIE in *.mp4; do
-  if [ -x $MOVIE ]; 
+  echo $MOVIE >> $LOG
+  if [ -f "$MOVIE" ]; 
     then
     BASE_NAME=${MOVIE%mp4}
     convertSubtitle "$BASE_NAME" srt
@@ -64,7 +65,8 @@ for MOVIE in *.mp4; do
   fi
 done
 for MOVIE in *.avi; do
-  if [ -x "$MOVIE" ];
+  echo $MOVIE >> $LOG
+  if [ -f "$MOVIE" ];
     then
     BASE_NAME=${MOVIE%avi}
     convertSubtitle "$BASE_NAME" srt

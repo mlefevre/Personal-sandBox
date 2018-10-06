@@ -32,7 +32,7 @@ function encodeWithSubtitle {
   SUBTITLE="$BASE_NAME"$SUBTITLE_EXT
 
   echo ========== include SUBTITLE in $MOVIE ==========
-  mencoder "$MOVIE" -ovc xvid -xvidencopts bitrate=900 -oac mp3lame -sub "$SUBTITLE.converted" -subcp utf8 -o "$BASE_NAME"stfr.$MOVIE_EXT
+  mencoder "$MOVIE" -ovc xvid -xvidencopts bitrate=900 -oac mp3lame -sub "$SUBTITLE.converted" -subcp utf8 -o "$BASE_NAME"stfr.$MOVIE_EXT 2>/dev/null
   #mencoder "$MOVIE" -oac mp3lame -lameopts abr:br=128 -ovc x264 -x264encopts pass=1:subq=1:frameref=2:threads=auto -sub "$SUBTITLE.converted" -subcp utf8 -o /dev/null # OK
   #mencoder "$MOVIE" -oac mp3lame -lameopts abr:br=128 -ovc x264 -x264encopts pass=2:subq=5:frameref=6:threads=auto:bitrate=900 -sub "$SUBTITLE.converted" -subcp utf8 -o "$BASE_NAME"stfr.$MOVIE_EXT # OK
   if [ $? -ne 0 ];
@@ -71,6 +71,15 @@ for MOVIE in *.avi; do
     BASE_NAME=${MOVIE%avi}
     convertSubtitle "$BASE_NAME" srt
     encodeWithSubtitle "$BASE_NAME" avi srt
+  fi  
+done
+for MOVIE in *.mkv; do
+  echo $MOVIE >> $LOG
+  if [ -f "$MOVIE" ];
+    then
+    BASE_NAME=${MOVIE%mkv}
+    convertSubtitle "$BASE_NAME" srt
+    encodeWithSubtitle "$BASE_NAME" mkv srt
   fi  
 done
 exit

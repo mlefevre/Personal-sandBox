@@ -27,14 +27,28 @@ function encodeWithSubtitle {
   BASE_NAME=$1
   MOVIE_EXT=$2
   SUBTITLE_EXT=$3
+  OUTPUT_FOLDER="$4"
 
   MOVIE="$BASE_NAME"$MOVIE_EXT
   SUBTITLE="$BASE_NAME"$SUBTITLE_EXT
+  if [ -z "$4"  ];	# if there is no $4
+	then
+	OUTPUT_FOLDER=".";
+  fi
 
   echo ========== include SUBTITLE in $MOVIE ==========
-  mencoder "$MOVIE" -ovc xvid -xvidencopts bitrate=900 -oac mp3lame -sub "$SUBTITLE.converted" -subcp utf8 -o "$BASE_NAME"stfr.$MOVIE_EXT 2>/dev/null
-  #mencoder "$MOVIE" -oac mp3lame -lameopts abr:br=128 -ovc x264 -x264encopts pass=1:subq=1:frameref=2:threads=auto -sub "$SUBTITLE.converted" -subcp utf8 -o /dev/null # OK
-  #mencoder "$MOVIE" -oac mp3lame -lameopts abr:br=128 -ovc x264 -x264encopts pass=2:subq=5:frameref=6:threads=auto:bitrate=900 -sub "$SUBTITLE.converted" -subcp utf8 -o "$BASE_NAME"stfr.$MOVIE_EXT # OK
+  exec mencoder "$MOVIE" \
+	  -ovc xvid -xvidencopts bitrate=900 \
+	  -oac mp3lame \
+	  -sub "$SUBTITLE.converted" -subcp utf8 \
+	  -o "$OUTPUT_FOLDER/$BASE_NAME"stfr.$MOVIE_EXT \
+	  2>/dev/null
+#  exec  mencoder "$MOVIE" \
+#	  -ovc lavc -oac lavc -of mpeg\
+#	  -lavcopts vcodec=mpeg2video:keyint=1:vbitrate=900:vrc_maxrate=9000:vrc_buf_size=1835 \
+#	  -vf harddup -mpegopts muxrate=13000 \
+#	  -sub "$SUBTITLE.converted" -subcp utf8 \
+#	  -o "$BASE_NAME"stfr.$MOVIE_EXT 2>/dev/null
   if [ $? -ne 0 ];
     then
     echo error when re-encoding $MOVIE with $SUBTITLE
@@ -45,13 +59,16 @@ function encodeWithSubtitle {
 
 # Script used to include subtitle in video. The movie and its related subtitle file must have
 # the same name, except for the extension which must be .avi and .srt
-# @Param : [1] the directory where the movie and the subtitle are. All the movie in the directory will be converted
+# @Param : 
+#       [1] the directory where the movie and the subtitle are. All the movie in the directory will be converted
+#       [2] the output directory (optional)
 # @Return : 1 if error, 0 otherwise
 # @Output : log in log files contained in the DIRECTORY
 #           Utf-8 subtitle file 
 #           reencoded movie with same name and extension .stfr.avi
 DIRECTORY="$1"
 LOG="$0".log
+OUTPUT_FOLDER="$2"
 
 cd "$DIRECTORY"
 echo parameter = $DIRECTORY > $LOG
@@ -61,7 +78,7 @@ for MOVIE in *.mp4; do
     then
     BASE_NAME=${MOVIE%mp4}
     convertSubtitle "$BASE_NAME" srt
-    encodeWithSubtitle "$BASE_NAME" mp4 srt
+    encodeWithSubtitle "$BASE_NAME" mp4 srt "$OUTPUT_FOLDER"
   fi
 done
 for MOVIE in *.avi; do
@@ -70,7 +87,7 @@ for MOVIE in *.avi; do
     then
     BASE_NAME=${MOVIE%avi}
     convertSubtitle "$BASE_NAME" srt
-    encodeWithSubtitle "$BASE_NAME" avi srt
+    encodeWithSubtitle "$BASE_NAME" avi srt "$OUTPUT_FOLDER"
   fi  
 done
 for MOVIE in *.mkv; do
@@ -79,7 +96,7 @@ for MOVIE in *.mkv; do
     then
     BASE_NAME=${MOVIE%mkv}
     convertSubtitle "$BASE_NAME" srt
-    encodeWithSubtitle "$BASE_NAME" mkv srt
+    encodeWithSubtitle "$BASE_NAME" mkv srt "$OUTPUT_FOLDER"
   fi  
 done
 exit

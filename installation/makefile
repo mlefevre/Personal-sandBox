@@ -7,18 +7,26 @@ full: vim git eclipse clone psql soapui alfresco
 # Install of Alfresco environments
 alfresco: alfresco-bos alfresco-xchange
 
+# Install various console utilities tools
+consoleTools: vim git zsh
+
 # install vi improved
 vim:
 	sudo apt install vim
 # install git client
 git:
 	sudo apt install git
+# install zsh as default command line interpret
+zsh:
+	sudo apt install zsh
+	chsh -s /bin/zsh
 # install maven
 maven:
 	wget http://apache.belnet.be/maven/maven-3/3.6.0/binaries/apache-maven-3.6.0-bin.tar.gz
 	sudo tar -zxf apache-maven-3.6.0-bin.tar.gz -C /opt
 	sudo chown $(USER):$(USER) -R /opt/apache-maven-3.6.0
 	echo ============= WARNING : you may need to update your path to use mvn command ================
+
 # install postgres
 psql:
 	sudo apt install postgresql

@@ -1,0 +1,5 @@
+alias tailf='tail -f'
+alias ll='ls -lh'
+alias lt='ls -lhrt'
+alias bos-start='sudo systemctl start bosecr-back'
+alias bos-stop='sudo systemctl stop bosecr-back'

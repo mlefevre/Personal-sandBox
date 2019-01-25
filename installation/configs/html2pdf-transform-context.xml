@@ -1,0 +1,63 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE beans PUBLIC '-//SPRING//DTD BEAN//EN' 'http://www.springframework.org/dtd/spring-beans.dtd'>
+
+<beans>
+	<bean id="transformer.worker.html2pdf"
+		class="org.alfresco.repo.content.transform.RuntimeExecutableContentTransformerWorker">
+		<property name="mimetypeService">
+			<ref bean="mimetypeService" />
+		</property>
+		<property name="checkCommand">
+			<bean class="org.alfresco.util.exec.RuntimeExec">
+				<property name="commandMap">
+					<map>
+						<entry key=".*">
+							<value>wkhtmltopdf --help</value>
+						</entry>
+					</map>
+				</property>
+				<property name="errorCodes">
+					<value>2</value>
+				</property>
+			</bean>
+		</property>
+		<property name="transformCommand">
+			<bean class="org.alfresco.util.exec.RuntimeExec">
+				<property name="commandMap">
+					<map>
+						<entry key="Linux">
+							<value>wkhtmltopdf ${source} ${target}</value>
+						</entry>
+						<entry key="Windows.*">
+							<value>wkhtmltopdf "${source}"
+								"${target}"</value>
+						</entry>
+					</map>
+				</property>
+				<property name="errorCodes">
+					<value>2</value>
+				</property>
+			</bean>
+		</property>
+		<property name="explicitTransformations">
+			<list>
+				<bean
+					class="org.alfresco.repo.content.transform.ExplictTransformationDetails">
+					<property name="sourceMimetype">
+						<value>text/html</value>
+					</property>
+					<property name="targetMimetype">
+						<value>application/pdf</value>
+					</property>
+				</bean>
+			</list>
+		</property>
+	</bean>
+	<bean id="transformer.html2pdf"
+		class="org.alfresco.repo.content.transform.ProxyContentTransformer"
+		parent="baseContentTransformer">
+		<property name="worker">
+			<ref bean="transformer.worker.html2pdf" />
+		</property>
+	</bean>
+</beans>

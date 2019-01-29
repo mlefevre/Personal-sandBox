@@ -2,7 +2,7 @@ SHELL = /bin/sh
 USER = mlefevre
 
 # Global install
-full: vim git eclipse clone psql soapui alfresco
+full: vim git eclipse clone psql apiTools alfresco tomcat
 
 # Install of Alfresco environments
 alfresco: alfresco-bos alfresco-xchange
@@ -27,6 +27,12 @@ maven:
 	sudo chown $(USER):$(USER) -R /opt/apache-maven-3.6.0
 	echo ============= WARNING : you may need to update your path to use mvn command ================
 
+# install tomcat
+tomcat:
+	sudo apt install tomcat8
+	sudo apt install tomcat8-user
+	sudo apt install tomcat8-admin
+	echo ======== INFO : you may need to add configuration in /etc/tomcat8/tomcat-users.xml and server.xml =======
 # install postgres
 psql:
 	sudo apt install postgresql
@@ -43,11 +49,14 @@ eclipse:
 	sudo tar -zxf eclipse-jee-oxygen-3a-linux-gtk-x86_64.tar.gz -C /opt
 	sudo chown $(USER):$(USER) -R /opt/eclipse/
 	sudo ln -s /opt/eclipse/eclipse /usr/bin/eclipse
-# install soapui
-soapui:
+	wget https://projectlombok.org/downloads/lombok.jar
+	java -jar lombok.jar
+# install test api tools : soapUI and rest client
+apiTools:
 	wget https://s3.amazonaws.com/downloads.eviware/soapuios/5.4.0/SoapUI-5.4.0-linux-bin.tar.gz
 	sudo tar -zxf SoapUI-5.4.0-linux-bin.tar.gz -C /opt
 	sudo chown $(USER):$(USER) -R /opt/SoapUI-5.4.0/
+	wget https://github.com/wiztools/rest-client/releases/download/3.7.1/restclient-ui-fat-3.7.1.jar
 # install onedrive (not working with business account)
 onedrive: 
 	git clone https://github.com/xybu92/onedrive-d.git
@@ -104,3 +113,4 @@ clean:
 	rm eclipse-jee-oxygen-3a-linux-gtk-x86_64.tar.gz
 	rm apache-maven-3.6.0-bin.tar.gz
 	rm SoapUI-5.4.0-linux-bin.tar.gz
+	rm lombok.jar

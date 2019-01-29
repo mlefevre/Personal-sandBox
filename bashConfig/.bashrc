@@ -87,6 +87,10 @@ fi
 if [ -f ~/.bash_aliases ]; then
     . ~/.bash_aliases
 fi
+# Add very local configuration (not planned to be exported)
+if [ -f ~/.bash_local ]; then
+	. ~/.bash_local
+fi
 
 # enable programmable completion features (you don't need to enable
 # this, if it's already enabled in /etc/bash.bashrc and /etc/profile
@@ -96,6 +100,8 @@ if [ -f /etc/bash_completion ] && ! shopt -oq posix; then
 fi
 
 # Personal configuration
+. ~/Personal-sandBox/bashConfig/git-prompt.sh
 
-export PS1='\[\e[1;33m\]\u\[\e[1;34m\]@\h\[\e[0;32m\]:\w\[\e[1;33m\]\$\[\e[0m\] '
+export GIT_PS1_SHOWDIRTYSTATE=1
+export PS1='\[\e[1;33m\]\u\[\e[1;34m\]@\h\[\e[0;32m\]:\w\[\e[1;33m\]$(__git_ps1 " (%s)")\$\[\e[0m\] '
 

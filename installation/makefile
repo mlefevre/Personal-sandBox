@@ -29,10 +29,13 @@ maven:
 
 # install tomcat
 tomcat:
-	sudo apt install tomcat8
-	sudo apt install tomcat8-user
-	sudo apt install tomcat8-admin
-	echo ======== INFO : you may need to add configuration in /etc/tomcat8/tomcat-users.xml and server.xml =======
+	#sudo apt install tomcat8
+	#sudo apt install tomcat8-user
+	#sudo apt install tomcat8-admin
+	#echo ======== INFO : you may need to add configuration in /etc/tomcat8/tomcat-users.xml and server.xml =======
+	wget http://apache.cu.be/tomcat/tomcat-8/v8.5.37/bin/apache-tomcat-8.5.37.tar.gz
+	sudo tar -zxf apache-tomcat-8.5.37.tar.gz -C /opt
+	sudo chown -R mlefevre:mlefevre /opt/apache-tomcat-8.5.37/
 # install postgres
 psql:
 	sudo apt install postgresql

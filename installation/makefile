@@ -29,23 +29,26 @@ maven:
 
 # install tomcat
 tomcat:
-	#sudo apt install tomcat8
-	#sudo apt install tomcat8-user
-	#sudo apt install tomcat8-admin
-	#echo ======== INFO : you may need to add configuration in /etc/tomcat8/tomcat-users.xml and server.xml =======
 	wget http://apache.cu.be/tomcat/tomcat-8/v8.5.37/bin/apache-tomcat-8.5.37.tar.gz
 	sudo tar -zxf apache-tomcat-8.5.37.tar.gz -C /opt
 	sudo chown -R mlefevre:mlefevre /opt/apache-tomcat-8.5.37/
 # install postgres
 psql:
 	sudo apt install postgresql
-	sudo apt install pgadmin3
 	wget https://jdbc.postgresql.org/download/postgresql-42.2.5.jre7.jar
 	sudo cp configs/pg_hba.conf /etc/postgresql/10/main/
 	sudo service postgresql restart
 	# Require to provide password for alfresco DB user
 	sudo -u postgres createuser -Sdr -P alfresco
 	sudo -u postgres createdb -O alfresco alfresco
+	wget https://kent.dl.sourceforge.net/project/squirrel-sql/1-stable/3.9.0/squirrel-sql-3.9.0-standard.jar
+	sudo java -jar squirrel-sql-3.9.0-standard.jar
+mysql:
+	sudo apt install mysql-server
+	sudo systemctl start mysql
+	sudo systemctl enable mysql
+	sudo mysql -e "CREATE USER alfresco@127.0.0.1 identified by 'alfresco';"
+	sudo mysql -e "CREATE DATABASE alfresco ; GRANT ALL PRIVILEGES ON alfresco.* TO alfresco@localhost; FLUSH PRIVILEGES"
 # install eclipse
 eclipse:
 	wget http://ftp.fau.de/eclipse/technology/epp/downloads/release/oxygen/3a/eclipse-jee-oxygen-3a-linux-gtk-x86_64.tar.gz
@@ -111,9 +114,24 @@ alfresco-bos:
 # install alfresco for BosXchange
 alfresco-xchange:
 	wget http://repo.irisnet.be/apps/com.alfresco/alfresco-enterprise-3.4.7.zip
+	unzip -q alfresco-enterprise-3.4.7.zip -d ~/DEVENV/
+	wget http://repo.irisnet.be/apps/com.alfresco/mysql-connector-java-5.1.18-bin.jar
+	cp configs/setenv.sh ~/DEVENV/alfresco-enterprise-3.4.7/tomcat/bin/
+	sed -i -e 's/alfresco-4.2.7/alfresco-enterprise-3.4.7/g' ~/DEVENV/alfresco-enterprise-3.4.7/tomcat/bin/setenv.sh
+	cp configs/alfresco-global.properties ~/DEVENV/alfresco-enterprise-3.4.7/tomcat/shared/classes/
+	sed -i -E 's/(^db.driver=).*$/\1com.mysql.jdbc.Driver/g' ~/DEVENV/alfresco-enterprise-3.4.7/tomcat/shared/classes/alfresco-global.properties
+	sed -i -E 's/(^db.username=).*$/\1alfresco/g' ~/DEVENV/alfresco-enterprise-3.4.7/tomcat/shared/classes/alfresco-global.properties
+	sed -i -E 's/(^db.password=).*$/\1alfresco/g' ~/DEVENV/alfresco-enterprise-3.4.7/tomcat/shared/classes/alfresco-global.properties
+	sed -i -E 's/(^db.name=).*$/\1alfresco/g' ~/DEVENV/alfresco-enterprise-3.4.7/tomcat/shared/classes/alfresco-global.properties
+	sed -i -E 's/(^db.url=).*$/\1jdbc:mysql:\/\/localhost:3306\/alfresco/g' ~/DEVENV/alfresco-enterprise-3.4.7/tomcat/shared/classes/alfresco-global.properties
+	sed -i -e 's/\/data\/alfresco/\/home\/mlefevre\/DEVENV/g' ~/DEVENV/alfresco-enterprise-3.4.7/tomcat/scripts/ctl.sh
+	sudo cp configs/serviceTxchback.sh /etc/systemd/system/txchback.service
+	sudo systemctl daemon-reload
+
 # Remove unnecessary file after installation
 clean:
 	rm eclipse-jee-oxygen-3a-linux-gtk-x86_64.tar.gz
 	rm apache-maven-3.6.0-bin.tar.gz
 	rm SoapUI-5.4.0-linux-bin.tar.gz
 	rm lombok.jar
+	rm squirrel-sql-3.9.0-standard.jar

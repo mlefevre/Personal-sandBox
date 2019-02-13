@@ -5,6 +5,7 @@ After=network.target
 [Service]
 Type=forking
 Environment=/home/mlefevre/DEVENV/alfresco-4.2.7
+WorkingDirectory=/home/mlefevre/DEVENV/alfresco-4.2.7
 ExecStart=/home/mlefevre/DEVENV/alfresco-4.2.7/alfresco.sh start
 ExecReload=/home/mlefevre/DEVENV/alfresco-4.2.7/alfresco.sh restart
 ExecStop=/home/mlefevre/DEVENV/alfresco-4.2.7/alfresco.sh stop

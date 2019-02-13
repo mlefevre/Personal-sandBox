@@ -1,10 +1,12 @@
 [Unit]
 Description=Alfresco backend for xchange
 After=network.target
+Requires=rabbitmq-server.service
 
 [Service]
 Type=forking
 Environment=/home/mlefevre/DEVENV/alfresco-enterprise-3.4.7
+WorkingDirectory=/home/mlefevre/DEVENV/alfresco-enterprise-3.4.7
 ExecStart=/home/mlefevre/DEVENV/alfresco-enterprise-3.4.7/alfresco.sh start
 ExecReload=/home/mlefevre/DEVENV/alfresco-enterprise-3.4.7/alfresco.sh restart
 ExecStop=/home/mlefevre/DEVENV/alfresco-enterprise-3.4.7/alfresco.sh stop

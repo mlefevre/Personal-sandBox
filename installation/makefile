@@ -49,6 +49,9 @@ mysql:
 	sudo systemctl enable mysql
 	sudo mysql -e "CREATE USER alfresco@127.0.0.1 identified by 'alfresco';"
 	sudo mysql -e "CREATE DATABASE alfresco ; GRANT ALL PRIVILEGES ON alfresco.* TO alfresco@localhost; FLUSH PRIVILEGES"
+rabbitmq:
+	sudo apt install rabbitmq-server
+	sudo rabbitmq-plugins enable rabbitmq_management
 # install eclipse
 eclipse:
 	wget http://ftp.fau.de/eclipse/technology/epp/downloads/release/oxygen/3a/eclipse-jee-oxygen-3a-linux-gtk-x86_64.tar.gz
@@ -118,6 +121,8 @@ alfresco-xchange:
 	wget http://repo.irisnet.be/apps/com.alfresco/mysql-connector-java-5.1.18-bin.jar
 	cp configs/setenv.sh ~/DEVENV/alfresco-enterprise-3.4.7/tomcat/bin/
 	sed -i -e 's/alfresco-4.2.7/alfresco-enterprise-3.4.7/g' ~/DEVENV/alfresco-enterprise-3.4.7/tomcat/bin/setenv.sh
+	sed -i -e 's/jmxremote.port=18500/jmxremote.port=18501/g' ~/DEVENV/alfresco-enterprise-3.4.7/tomcat/bin/setenv.sh
+	sed -i -e 's/address=8888/address=8889/g' ~/DEVENV/alfresco-enterprise-3.4.7/tomcat/bin/setenv.sh
 	cp configs/alfresco-global.properties ~/DEVENV/alfresco-enterprise-3.4.7/tomcat/shared/classes/
 	sed -i -E 's/(^db.driver=).*$/\1com.mysql.jdbc.Driver/g' ~/DEVENV/alfresco-enterprise-3.4.7/tomcat/shared/classes/alfresco-global.properties
 	sed -i -E 's/(^db.username=).*$/\1alfresco/g' ~/DEVENV/alfresco-enterprise-3.4.7/tomcat/shared/classes/alfresco-global.properties
@@ -125,6 +130,9 @@ alfresco-xchange:
 	sed -i -E 's/(^db.name=).*$/\1alfresco/g' ~/DEVENV/alfresco-enterprise-3.4.7/tomcat/shared/classes/alfresco-global.properties
 	sed -i -E 's/(^db.url=).*$/\1jdbc:mysql:\/\/localhost:3306\/alfresco/g' ~/DEVENV/alfresco-enterprise-3.4.7/tomcat/shared/classes/alfresco-global.properties
 	sed -i -e 's/\/data\/alfresco/\/home\/mlefevre\/DEVENV/g' ~/DEVENV/alfresco-enterprise-3.4.7/tomcat/scripts/ctl.sh
+	sed -i -e 's/8080/8082/g' ~/DEVENV/alfresco-enterprise-3.4.7/tomcat/conf/server.xml
+	sed -i -e 's/8005/8006/g' ~/DEVENV/alfresco-enterprise-3.4.7/tomcat/conf/server.xml
+	sed -i -e 's/8443/8444/g' ~/DEVENV/alfresco-enterprise-3.4.7/tomcat/conf/server.xml
 	sudo cp configs/serviceTxchback.sh /etc/systemd/system/txchback.service
 	sudo systemctl daemon-reload
 

@@ -30,8 +30,9 @@ maven:
 # install tomcat
 tomcat:
 	wget http://apache.cu.be/tomcat/tomcat-8/v8.5.37/bin/apache-tomcat-8.5.37.tar.gz
-	sudo tar -zxf apache-tomcat-8.5.37.tar.gz -C /opt
-	sudo chown -R mlefevre:mlefevre /opt/apache-tomcat-8.5.37/
+	tar -zxf apache-tomcat-8.5.37.tar.gz -C ~/DEVENV/
+	mv ~/DEVENV/apache-tomcat-8.5.37/ ~/DEVENV/apache-tomcat/
+	mkdir -p ~/DEVENV/apache-tomcat/shared/classes/
 # install postgres
 psql:
 	sudo apt install postgresql
@@ -49,9 +50,13 @@ mysql:
 	sudo systemctl enable mysql
 	sudo mysql -e "CREATE USER alfresco@127.0.0.1 identified by 'alfresco';"
 	sudo mysql -e "CREATE DATABASE alfresco ; GRANT ALL PRIVILEGES ON alfresco.* TO alfresco@localhost; FLUSH PRIVILEGES"
+	# The password of root user must be set to 'root' : UPDATE mysql.user SET authentication_string=PASSWORD('root') WHERE user="root";
 rabbitmq:
 	sudo apt install rabbitmq-server
 	sudo rabbitmq-plugins enable rabbitmq_management
+	sudo rabbitmqctl add_user admin admin
+	sudo rabbitmqctl set_permissions -p / admin ".*" ".*" ".*"
+	sudo rabbitmqctl set_user_tags admin administrator
 # install eclipse
 eclipse:
 	wget http://ftp.fau.de/eclipse/technology/epp/downloads/release/oxygen/3a/eclipse-jee-oxygen-3a-linux-gtk-x86_64.tar.gz
@@ -119,20 +124,28 @@ alfresco-xchange:
 	wget http://repo.irisnet.be/apps/com.alfresco/alfresco-enterprise-3.4.7.zip
 	unzip -q alfresco-enterprise-3.4.7.zip -d ~/DEVENV/
 	wget http://repo.irisnet.be/apps/com.alfresco/mysql-connector-java-5.1.18-bin.jar
+	cp mysql-connector-java-5.1.18-bin.jar ~/DEVENV/alfresco-enterprise-3.4.7/tomcat/lib/
+	wget https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/share-extras/javascript-console-0.4.2.jar
+	mkdir ~/DEVENV/alfresco-enterprise-3.4.7/tomcat/shared/lib
+	mv javascript-console-0.4.2.jar ~/DEVENV/alfresco-enterprise-3.4.7/tomcat/shared/lib/
+	mkdir ~/DEVENV/alfresco-enterprise-3.4.7/tomcat/shared/classes/alfresco/extension/license
+	cp configs/CIRB-ent34.lic ~/DEVENV/alfresco-enterprise-3.4.7/tomcat/shared/classes/alfresco/extension/license/
 	cp configs/setenv.sh ~/DEVENV/alfresco-enterprise-3.4.7/tomcat/bin/
 	sed -i -e 's/alfresco-4.2.7/alfresco-enterprise-3.4.7/g' ~/DEVENV/alfresco-enterprise-3.4.7/tomcat/bin/setenv.sh
 	sed -i -e 's/jmxremote.port=18500/jmxremote.port=18501/g' ~/DEVENV/alfresco-enterprise-3.4.7/tomcat/bin/setenv.sh
 	sed -i -e 's/address=8888/address=8889/g' ~/DEVENV/alfresco-enterprise-3.4.7/tomcat/bin/setenv.sh
 	cp configs/alfresco-global.properties ~/DEVENV/alfresco-enterprise-3.4.7/tomcat/shared/classes/
-	sed -i -E 's/(^db.driver=).*$/\1com.mysql.jdbc.Driver/g' ~/DEVENV/alfresco-enterprise-3.4.7/tomcat/shared/classes/alfresco-global.properties
-	sed -i -E 's/(^db.username=).*$/\1alfresco/g' ~/DEVENV/alfresco-enterprise-3.4.7/tomcat/shared/classes/alfresco-global.properties
-	sed -i -E 's/(^db.password=).*$/\1alfresco/g' ~/DEVENV/alfresco-enterprise-3.4.7/tomcat/shared/classes/alfresco-global.properties
-	sed -i -E 's/(^db.name=).*$/\1alfresco/g' ~/DEVENV/alfresco-enterprise-3.4.7/tomcat/shared/classes/alfresco-global.properties
-	sed -i -E 's/(^db.url=).*$/\1jdbc:mysql:\/\/localhost:3306\/alfresco/g' ~/DEVENV/alfresco-enterprise-3.4.7/tomcat/shared/classes/alfresco-global.properties
-	sed -i -e 's/\/data\/alfresco/\/home\/mlefevre\/DEVENV/g' ~/DEVENV/alfresco-enterprise-3.4.7/tomcat/scripts/ctl.sh
+	sed -i -e 's/alfresco-4.2.7/alfresco-enterprise-3.4.7/g' ~/DEVENV/alfresco-enterprise-3.4.7/tomcat/shared/classes/alfresco-global.properties
+	sed -i -e 's/port=8080/port=8082/g' ~/DEVENV/alfresco-enterprise-3.4.7/tomcat/shared/classes/alfresco-global.properties
+	sed -i -E 's/(^db.driver=).*/\1com.mysql.jdbc.Driver/g' ~/DEVENV/alfresco-enterprise-3.4.7/tomcat/shared/classes/alfresco-global.properties
+	sed -i -E 's/(^db.username=).*/\1alfresco/g' ~/DEVENV/alfresco-enterprise-3.4.7/tomcat/shared/classes/alfresco-global.properties
+	sed -i -E 's/(^db.password=).*/\1alfresco/g' ~/DEVENV/alfresco-enterprise-3.4.7/tomcat/shared/classes/alfresco-global.properties
+	sed -i -E 's/(^db.name=).*/\1alfresco/g' ~/DEVENV/alfresco-enterprise-3.4.7/tomcat/shared/classes/alfresco-global.properties
+	sed -i -E 's/(^db.url=).*/\1jdbc:mysql:\/\/localhost:3306\/alfresco/g' ~/DEVENV/alfresco-enterprise-3.4.7/tomcat/shared/classes/alfresco-global.properties
 	sed -i -e 's/8080/8082/g' ~/DEVENV/alfresco-enterprise-3.4.7/tomcat/conf/server.xml
-	sed -i -e 's/8005/8006/g' ~/DEVENV/alfresco-enterprise-3.4.7/tomcat/conf/server.xml
+	sed -i -e 's/8005/8007/g' ~/DEVENV/alfresco-enterprise-3.4.7/tomcat/conf/server.xml
 	sed -i -e 's/8443/8444/g' ~/DEVENV/alfresco-enterprise-3.4.7/tomcat/conf/server.xml
+	rgrep -l /data/alfresco ~/DEVENV/alfresco-enterprise-3.4.7/ | xargs sed -i 's/\/data\/alfresco/\/home\/mlefevre\/DEVENV/g'
 	sudo cp configs/serviceTxchback.sh /etc/systemd/system/txchback.service
 	sudo systemctl daemon-reload
 

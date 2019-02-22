@@ -96,7 +96,8 @@ alfresco-bos:
 	sudo chmod 0644 ~/DEVENV/alfresco-4.2.7/tomcat/shared/classes/alfresco-global.properties
 	rm ~/DEVENV/alfresco-4.2.7/tomcat/lib/postgresql*
 	cp postgresql-42.2.5.jre7.jar ~/DEVENV/alfresco-4.2.7/tomcat/lib/
-	# gestion license =TODO
+	mkdir -p ~/DEVENV/alfresco-4.2.7/tomcat/shared/classes/alfresco/extension/license
+	cp configs/Alfresco-ent42-CIRB.lic ~/DEVENV/alfresco-4.2.7/tomcat/shared/classes/alfresco/extension/license/
 	cp configs/setenv.sh ~/DEVENV/alfresco-4.2.7/tomcat/bin/
 	sudo chmod 0774 ~/DEVENV/alfresco-4.2.7/tomcat/bin/setenv.sh
 	sudo cp configs/service.sh /etc/systemd/system/bosecr-back.service

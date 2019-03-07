@@ -8,11 +8,13 @@ full: vim git eclipse clone psql apiTools alfresco tomcat
 alfresco: alfresco-bos alfresco-xchange
 
 # Install various console utilities tools
-consoleTools: vim git zsh
+consoleTools: vim git zsh gdebi
 
 # install vi improved
 vim:
 	sudo apt install vim
+gdebi:
+	sudo apt install gdebi
 # install git client
 git:
 	sudo apt install git
@@ -150,6 +152,12 @@ alfresco-xchange:
 	sudo cp configs/serviceTxchback.sh /etc/systemd/system/txchback.service
 	sudo systemctl daemon-reload
 
+#install eid software
+eid:
+	wget https://eid.belgium.be/sites/default/files/software/eid-archive_2019.1_all.deb
+	sudo gdebi eid-archive_2019.1_all.deb
+	sudo apt update
+	sudo apt install eid-viewer
 # Remove unnecessary file after installation
 clean:
 	rm eclipse-jee-oxygen-3a-linux-gtk-x86_64.tar.gz

@@ -2,7 +2,7 @@ SHELL = /bin/sh
 USER = mlefevre
 
 # Global install
-full: vim git eclipse clone psql apiTools alfresco tomcat
+full: vim git eclipse clone psql apiTools alfresco tomcat7
 
 # Install of Alfresco environments
 alfresco: alfresco-bos alfresco-xchange
@@ -22,19 +22,33 @@ git:
 zsh:
 	sudo apt install zsh
 	chsh -s /bin/zsh
+cicd-tools:
+	# install nix
+	bash <(curl https://nixos.org/nix/install)
+	echo 'if [ -e $HOME/.nix-profile/etc/profile.d/nix.sh ]; then . $HOME/.nix-profile/etc/profile.d/nix.sh; fi' >> ~/.bashrc # use .bashrc or .bash_profile or .profile depending of your shell installation
+	source ~/.bashrc
+	nix-env -iA cachix -f https://github.com/NixOS/nixpkgs/tarball/1d4de0d552ae9aa66a5b8dee5fb0650a4372d148
+	sudo mkdir /etc/nix
+	cachix use cicd-shell
+	nix-env -i -f https://github.com/CIRB/cicd-shell/tarball/v2.5.11
+	curl -o ~/.config/cicd/shell.dhall https://raw.githubusercontent.com/CIRB/devbox/master/config/shell.dhall
+	export LOGINID=$USER
 # install maven
 maven:
 	wget http://apache.belnet.be/maven/maven-3/3.6.0/binaries/apache-maven-3.6.0-bin.tar.gz
 	sudo tar -zxf apache-maven-3.6.0-bin.tar.gz -C /opt
 	sudo chown $(USER):$(USER) -R /opt/apache-maven-3.6.0
 	echo ============= WARNING : you may need to update your path to use mvn command ================
-
 # install tomcat
-tomcat:
+tomcat8:
 	wget http://apache.cu.be/tomcat/tomcat-8/v8.5.37/bin/apache-tomcat-8.5.37.tar.gz
 	tar -zxf apache-tomcat-8.5.37.tar.gz -C ~/DEVENV/
 	mv ~/DEVENV/apache-tomcat-8.5.37/ ~/DEVENV/apache-tomcat/
 	mkdir -p ~/DEVENV/apache-tomcat/shared/classes/
+tomcat7:
+	wget https://apache.cu.be/tomcat/tomcat-7/v7.0.93/bin/apache-tomcat-7.0.93.tar.gz
+	tar -xzf apache-tomcat-7.0.93.tar.gz -C ~/DEVENV
+	mkdir -p ~/DEVENV/apache-tomcat-7.0.93/shared/classes/
 # install postgres
 psql:
 	sudo apt install postgresql

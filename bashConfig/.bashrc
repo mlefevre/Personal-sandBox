@@ -103,5 +103,6 @@ fi
 . ~/Personal-sandBox/bashConfig/git-prompt.sh
 
 export GIT_PS1_SHOWDIRTYSTATE=1
-export PS1='\[\e[1;33m\]\u\[\e[1;34m\]@\h\[\e[0;32m\]:\w\[\e[1;33m\]$(__git_ps1 " (%s)")\$\[\e[0m\] '
+export PS1='\[\e[0;33m\][\t]\[\e[1;34m\] @ \w \[\e[1;33m\]$(__git_ps1 " (%s)")\[\e[0;32m\]\n\u $\[\e[0m\] '
 
+if [ -e $HOME/.nix-profile/etc/profile.d/nix.sh ]; then . $HOME/.nix-profile/etc/profile.d/nix.sh; fi

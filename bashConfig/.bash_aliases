@@ -4,6 +4,7 @@ export TEXINPUTS=.:/usr/share/texmf-texlive/tex/latex/prosper
 alias tailf='tail -f'
 alias ll='ls -lh'
 alias lt='ls -lhrt'
+alias ssh='ssh -q'
 alias bos-start='sudo systemctl start bosecr-back'
 alias bos-stop='sudo systemctl stop bosecr-back'
 

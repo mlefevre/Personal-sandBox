@@ -32,7 +32,7 @@ cicd-tools:
 	cachix use cicd-shell
 	nix-env -i -f https://github.com/CIRB/cicd-shell/tarball/v2.5.11
 	curl -o ~/.config/cicd/shell.dhall https://raw.githubusercontent.com/CIRB/devbox/master/config/shell.dhall
-	export LOGINID=$USER
+	sudo su -c "echo LOGINID=$USER >> /etc/environment"
 # install maven
 maven:
 	wget http://apache.belnet.be/maven/maven-3/3.6.0/binaries/apache-maven-3.6.0-bin.tar.gz

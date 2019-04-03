@@ -2,6 +2,7 @@
 Description=Alfresco backend for xchange
 After=network.target
 Requires=rabbitmq-server.service
+Requires=idp-mock.service
 
 [Service]
 Type=forking

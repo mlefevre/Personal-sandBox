@@ -1,5 +1,7 @@
 SHELL = /bin/sh
 USER = mlefevre
+HOME_FOLDER = /home/$(USER)
+ENV_FOLDER = $(HOME_FOLDER)/DEVENV
 
 # Global install
 full: vim git eclipse clone psql apiTools alfresco tomcat7
@@ -25,14 +27,14 @@ zsh:
 cicd-tools:
 	# install nix
 	bash <(curl https://nixos.org/nix/install)
-	echo 'if [ -e $HOME/.nix-profile/etc/profile.d/nix.sh ]; then . $HOME/.nix-profile/etc/profile.d/nix.sh; fi' >> ~/.bashrc # use .bashrc or .bash_profile or .profile depending of your shell installation
+	echo 'if [ -e $(HOME)/.nix-profile/etc/profile.d/nix.sh ]; then . $(HOME)/.nix-profile/etc/profile.d/nix.sh; fi' >> ~/.bashrc # use .bashrc or .bash_profile or .profile depending of your shell installation
 	source ~/.bashrc
 	nix-env -iA cachix -f https://github.com/NixOS/nixpkgs/tarball/1d4de0d552ae9aa66a5b8dee5fb0650a4372d148
 	sudo mkdir /etc/nix
 	cachix use cicd-shell
 	nix-env -i -f https://github.com/CIRB/cicd-shell/tarball/v2.5.11
 	curl -o ~/.config/cicd/shell.dhall https://raw.githubusercontent.com/CIRB/devbox/master/config/shell.dhall
-	sudo su -c "echo LOGINID=$USER >> /etc/environment"
+	sudo su -c "echo LOGINID=$(USER) >> /etc/environment"
 # install maven
 maven:
 	wget http://apache.belnet.be/maven/maven-3/3.6.0/binaries/apache-maven-3.6.0-bin.tar.gz
@@ -41,14 +43,14 @@ maven:
 	echo ============= WARNING : you may need to update your path to use mvn command ================
 # install tomcat
 tomcat8:
-	wget http://apache.cu.be/tomcat/tomcat-8/v8.5.37/bin/apache-tomcat-8.5.37.tar.gz
-	tar -zxf apache-tomcat-8.5.37.tar.gz -C ~/DEVENV/
-	mv ~/DEVENV/apache-tomcat-8.5.37/ ~/DEVENV/apache-tomcat/
-	mkdir -p ~/DEVENV/apache-tomcat/shared/classes/
+	wget http://apache.cu.be/tomcat/tomcat-8/v8.5.39/bin/apache-tomcat-8.5.39.tar.gz
+	tar -zxf apache-tomcat-8.5.39.tar.gz -C $(ENV_FOLDER)/
+	mv $(ENV_FOLDER)/apache-tomcat-8.5.39/ $(ENV_FOLDER)/apache-tomcat/
+	mkdir -p $(ENV_FOLDER)/apache-tomcat/shared/classes/
 tomcat7:
 	wget https://apache.cu.be/tomcat/tomcat-7/v7.0.93/bin/apache-tomcat-7.0.93.tar.gz
-	tar -xzf apache-tomcat-7.0.93.tar.gz -C ~/DEVENV
-	mkdir -p ~/DEVENV/apache-tomcat-7.0.93/shared/classes/
+	tar -xzf apache-tomcat-7.0.93.tar.gz -C $(ENV_FOLDER)
+	mkdir -p $(ENV_FOLDER)/apache-tomcat-7.0.93/shared/classes/
 # install postgres
 psql:
 	sudo apt install postgresql
@@ -73,6 +75,23 @@ rabbitmq:
 	sudo rabbitmqctl add_user admin admin
 	sudo rabbitmqctl set_permissions -p / admin ".*" ".*" ".*"
 	sudo rabbitmqctl set_user_tags admin administrator
+
+# install idp mock
+idp-mock:
+	wget http://nexus.cirb.lan/repository/maven-releases/brussels/bric/iam/mujina-idp/1.0.2/mujina-idp-1.0.2-assembly.zip
+	unzip -q mujina-idp-1.0.2-assembly.zip -d $(ENV_FOLDER)/
+	sudo chmod 0744 $(ENV_FOLDER)/idp-1.0.2/*
+	sudo cp configs/idp-mock /etc/init.d/
+	sudo chmod 0755 /etc/init.d/idp-mock
+	sudo sed -i -E 's/(^USER=).*/\1$(USER)/g' /etc/init.d/idp-mock
+	# set java 7 to be used as jre
+	sudo sed -i -E 's/(^JAVA_PATH=).*/\1\/opt\/jdk1.7.0_80\/bin/g' /etc/init.d/idp-mock
+	sudo sed -i -E 's/(^APPLICATION_ROOT=).*/\1\/home\/mlefevre\/DEVENV\/idp-1.0.2/g' /etc/init.d/idp-mock
+	# get the config of the DEV environment
+	scp $(USER)@dev-txchweb:/srv/idp-mock/config/default.json $(ENV_FOLDER)/idp-1.0.2/config/
+
+	echo "You must edit idp-1.0.2/config/server.xml"
+
 # install eclipse
 eclipse:
 	wget http://ftp.fau.de/eclipse/technology/epp/downloads/release/oxygen/3a/eclipse-jee-oxygen-3a-linux-gtk-x86_64.tar.gz
@@ -108,63 +127,64 @@ alfresco-bos:
 	wget http://repo.irisnet.be/apps/com.alfresco/alfresco-enterprise-4.2.7-installer-linux-x64.bin
 	sudo chmod 0755 alfresco-enterprise-4.2.7-installer-linux-x64.bin
 	./alfresco-enterprise-4.2.7-installer-linux-x64.bin --optionfile configs/installOptions
-	cp configs/alfresco-global.properties ~/DEVENV/alfresco-4.2.7/tomcat/shared/classes/
-	sudo chmod 0644 ~/DEVENV/alfresco-4.2.7/tomcat/shared/classes/alfresco-global.properties
-	rm ~/DEVENV/alfresco-4.2.7/tomcat/lib/postgresql*
-	cp postgresql-42.2.5.jre7.jar ~/DEVENV/alfresco-4.2.7/tomcat/lib/
-	mkdir -p ~/DEVENV/alfresco-4.2.7/tomcat/shared/classes/alfresco/extension/license
-	cp configs/Alfresco-ent42-CIRB.lic ~/DEVENV/alfresco-4.2.7/tomcat/shared/classes/alfresco/extension/license/
-	cp configs/setenv.sh ~/DEVENV/alfresco-4.2.7/tomcat/bin/
-	sudo chmod 0774 ~/DEVENV/alfresco-4.2.7/tomcat/bin/setenv.sh
+	cp configs/alfresco-global.properties $(ENV_FOLDER)/alfresco-4.2.7/tomcat/shared/classes/
+	sudo chmod 0644 $(ENV_FOLDER)/alfresco-4.2.7/tomcat/shared/classes/alfresco-global.properties
+	rm $(ENV_FOLDER)/alfresco-4.2.7/tomcat/lib/postgresql*
+	cp postgresql-42.2.5.jre7.jar $(ENV_FOLDER)/alfresco-4.2.7/tomcat/lib/
+	mkdir -p $(ENV_FOLDER)/alfresco-4.2.7/tomcat/shared/classes/alfresco/extension/license
+	cp configs/Alfresco-ent42-CIRB.lic $(ENV_FOLDER)/alfresco-4.2.7/tomcat/shared/classes/alfresco/extension/license/
+	cp configs/setenv.sh $(ENV_FOLDER)/alfresco-4.2.7/tomcat/bin/
+	sudo chmod 0774 $(ENV_FOLDER)/alfresco-4.2.7/tomcat/bin/setenv.sh
 	sudo cp configs/service.sh /etc/systemd/system/bosecr-back.service
 	sudo systemctl daemon-reload
 	# time for a first start
 	sudo systemctl start bosecr-back
 	sleep 100
 	sudo apt install wkhtmltopdf
-	cp configs/openoffice-document-formats.xml ~/DEVENV/alfresco-4.2.7/tomcat/webapps/alfresco/WEB-INF/classes/alfresco/mimetype/
-	cp configs/html2pdf-transform-context.xml ~/DEVENV/alfresco-4.2.7/tomcat/shared/classes/alfresco/extension/
-	rm -rf ~/DEVENV/alfresco-4.2.7/alf_data/solr/
-	rm -rf ~/DEVENV/alfresco-4.2.7/tomcat/webapps/solr/
-	rm ~/DEVENV/alfresco-4.2.7/tomcat/conf/Catalina/localhost/solr.xml
+	cp configs/openoffice-document-formats.xml $(ENV_FOLDER)/alfresco-4.2.7/tomcat/webapps/alfresco/WEB-INF/classes/alfresco/mimetype/
+	cp configs/html2pdf-transform-context.xml $(ENV_FOLDER)/alfresco-4.2.7/tomcat/shared/classes/alfresco/extension/
+	rm -rf $(ENV_FOLDER)/alfresco-4.2.7/alf_data/solr/
+	rm -rf $(ENV_FOLDER)/alfresco-4.2.7/tomcat/webapps/solr/
+	rm $(ENV_FOLDER)/alfresco-4.2.7/tomcat/conf/Catalina/localhost/solr.xml
 	wget https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/share-extras/javascript-console-0.5.1.zip
 	unzip javascript-console-0.5.1.zip -d jsConsole
-	cp jsConsole/4.0.x/javascript-console-repo-0.5.1.jar ~/DEVENV/alfresco-4.2.7/tomcat/webapps/alfresco/WEB-INF/lib/
-	cp jsConsole/4.0.x/javascript-console-share-0.5.1.jar  ~/DEVENV/alfresco-4.2.7/tomcat/webapps/share/WEB-INF/lib/
+	cp jsConsole/4.0.x/javascript-console-repo-0.5.1.jar $(ENV_FOLDER)/alfresco-4.2.7/tomcat/webapps/alfresco/WEB-INF/lib/
+	cp jsConsole/4.0.x/javascript-console-share-0.5.1.jar  $(ENV_FOLDER)/alfresco-4.2.7/tomcat/webapps/share/WEB-INF/lib/
 	rm -rf jsConsole/
-	cp configs/local-bric-bosecr.properties ~/DEVENV/alfresco-4.2.7/tomcat/shared/classes/
-	cp configs/local-bric-bosecr-back.properties ~/DEVENV/alfresco-4.2.7/tomcat/shared/classes/
-	cp configs/local-log4j.properties ~/DEVENV/alfresco-4.2.7/tomcat/shared/classes/alfresco/extension/
+	cp configs/local-bric-bosecr.properties $(ENV_FOLDER)/alfresco-4.2.7/tomcat/shared/classes/
+	cp configs/local-bric-bosecr-back.properties $(ENV_FOLDER)/alfresco-4.2.7/tomcat/shared/classes/
+	cp configs/local-log4j.properties $(ENV_FOLDER)/alfresco-4.2.7/tomcat/shared/classes/alfresco/extension/
 
 # install alfresco for BosXchange
 alfresco-xchange:
 	wget http://repo.irisnet.be/apps/com.alfresco/alfresco-enterprise-3.4.7.zip
-	unzip -q alfresco-enterprise-3.4.7.zip -d ~/DEVENV/
+	unzip -q alfresco-enterprise-3.4.7.zip -d $(ENV_FOLDER)/
 	wget http://repo.irisnet.be/apps/com.alfresco/mysql-connector-java-5.1.18-bin.jar
-	cp mysql-connector-java-5.1.18-bin.jar ~/DEVENV/alfresco-enterprise-3.4.7/tomcat/lib/
+	cp mysql-connector-java-5.1.18-bin.jar $(ENV_FOLDER)/alfresco-enterprise-3.4.7/tomcat/lib/
 	wget https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/share-extras/javascript-console-0.4.2.jar
-	mkdir ~/DEVENV/alfresco-enterprise-3.4.7/tomcat/shared/lib
-	mv javascript-console-0.4.2.jar ~/DEVENV/alfresco-enterprise-3.4.7/tomcat/shared/lib/
-	mkdir ~/DEVENV/alfresco-enterprise-3.4.7/tomcat/shared/classes/alfresco/extension/license
-	cp configs/CIRB-ent34.lic ~/DEVENV/alfresco-enterprise-3.4.7/tomcat/shared/classes/alfresco/extension/license/
-	cp configs/setenv.sh ~/DEVENV/alfresco-enterprise-3.4.7/tomcat/bin/
-	sed -i -e 's/alfresco-4.2.7/alfresco-enterprise-3.4.7/g' ~/DEVENV/alfresco-enterprise-3.4.7/tomcat/bin/setenv.sh
-	sed -i -e 's/jmxremote.port=18500/jmxremote.port=18501/g' ~/DEVENV/alfresco-enterprise-3.4.7/tomcat/bin/setenv.sh
-	sed -i -e 's/address=8888/address=8889/g' ~/DEVENV/alfresco-enterprise-3.4.7/tomcat/bin/setenv.sh
-	cp configs/alfresco-global.properties ~/DEVENV/alfresco-enterprise-3.4.7/tomcat/shared/classes/
-	sed -i -e 's/alfresco-4.2.7/alfresco-enterprise-3.4.7/g' ~/DEVENV/alfresco-enterprise-3.4.7/tomcat/shared/classes/alfresco-global.properties
-	sed -i -e 's/port=8080/port=8082/g' ~/DEVENV/alfresco-enterprise-3.4.7/tomcat/shared/classes/alfresco-global.properties
-	sed -i -E 's/(^db.driver=).*/\1com.mysql.jdbc.Driver/g' ~/DEVENV/alfresco-enterprise-3.4.7/tomcat/shared/classes/alfresco-global.properties
-	sed -i -E 's/(^db.username=).*/\1alfresco/g' ~/DEVENV/alfresco-enterprise-3.4.7/tomcat/shared/classes/alfresco-global.properties
-	sed -i -E 's/(^db.password=).*/\1alfresco/g' ~/DEVENV/alfresco-enterprise-3.4.7/tomcat/shared/classes/alfresco-global.properties
-	sed -i -E 's/(^db.name=).*/\1alfresco/g' ~/DEVENV/alfresco-enterprise-3.4.7/tomcat/shared/classes/alfresco-global.properties
-	sed -i -E 's/(^db.url=).*/\1jdbc:mysql:\/\/localhost:3306\/alfresco/g' ~/DEVENV/alfresco-enterprise-3.4.7/tomcat/shared/classes/alfresco-global.properties
-	sed -i -e 's/8080/8082/g' ~/DEVENV/alfresco-enterprise-3.4.7/tomcat/conf/server.xml
-	sed -i -e 's/8005/8007/g' ~/DEVENV/alfresco-enterprise-3.4.7/tomcat/conf/server.xml
-	sed -i -e 's/8443/8444/g' ~/DEVENV/alfresco-enterprise-3.4.7/tomcat/conf/server.xml
-	rgrep -l /data/alfresco ~/DEVENV/alfresco-enterprise-3.4.7/ | xargs sed -i 's/\/data\/alfresco/\/home\/mlefevre\/DEVENV/g'
+	mkdir $(ENV_FOLDER)/alfresco-enterprise-3.4.7/tomcat/shared/lib
+	mv javascript-console-0.4.2.jar $(ENV_FOLDER)/alfresco-enterprise-3.4.7/tomcat/shared/lib/
+	mkdir $(ENV_FOLDER)/alfresco-enterprise-3.4.7/tomcat/shared/classes/alfresco/extension/license
+	cp configs/CIRB-ent34.lic $(ENV_FOLDER)/alfresco-enterprise-3.4.7/tomcat/shared/classes/alfresco/extension/license/
+	cp configs/setenv.sh $(ENV_FOLDER)/alfresco-enterprise-3.4.7/tomcat/bin/
+	sed -i -e 's/alfresco-4.2.7/alfresco-enterprise-3.4.7/g' $(ENV_FOLDER)/alfresco-enterprise-3.4.7/tomcat/bin/setenv.sh
+	sed -i -e 's/jmxremote.port=18500/jmxremote.port=18501/g' $(ENV_FOLDER)/alfresco-enterprise-3.4.7/tomcat/bin/setenv.sh
+	sed -i -e 's/address=8888/address=8889/g' $(ENV_FOLDER)/alfresco-enterprise-3.4.7/tomcat/bin/setenv.sh
+	cp configs/alfresco-global.properties $(ENV_FOLDER)/alfresco-enterprise-3.4.7/tomcat/shared/classes/
+	sed -i -e 's/alfresco-4.2.7/alfresco-enterprise-3.4.7/g' $(ENV_FOLDER)/alfresco-enterprise-3.4.7/tomcat/shared/classes/alfresco-global.properties
+	sed -i -e 's/port=8080/port=8082/g' $(ENV_FOLDER)/alfresco-enterprise-3.4.7/tomcat/shared/classes/alfresco-global.properties
+	sed -i -E 's/(^db.driver=).*/\1com.mysql.jdbc.Driver/g' $(ENV_FOLDER)/alfresco-enterprise-3.4.7/tomcat/shared/classes/alfresco-global.properties
+	sed -i -E 's/(^db.username=).*/\1alfresco/g' $(ENV_FOLDER)/alfresco-enterprise-3.4.7/tomcat/shared/classes/alfresco-global.properties
+	sed -i -E 's/(^db.password=).*/\1alfresco/g' $(ENV_FOLDER)/alfresco-enterprise-3.4.7/tomcat/shared/classes/alfresco-global.properties
+	sed -i -E 's/(^db.name=).*/\1alfresco/g' $(ENV_FOLDER)/alfresco-enterprise-3.4.7/tomcat/shared/classes/alfresco-global.properties
+	sed -i -E 's/(^db.url=).*/\1jdbc:mysql:\/\/localhost:3306\/alfresco/g' $(ENV_FOLDER)/alfresco-enterprise-3.4.7/tomcat/shared/classes/alfresco-global.properties
+	sed -i -e 's/8080/8082/g' $(ENV_FOLDER)/alfresco-enterprise-3.4.7/tomcat/conf/server.xml
+	sed -i -e 's/8005/8007/g' $(ENV_FOLDER)/alfresco-enterprise-3.4.7/tomcat/conf/server.xml
+	sed -i -e 's/8443/8444/g' $(ENV_FOLDER)/alfresco-enterprise-3.4.7/tomcat/conf/server.xml
+	rgrep -l /data/alfresco $(ENV_FOLDER)/alfresco-enterprise-3.4.7/ | xargs sed -i 's/\/data\/alfresco/\/home\/mlefevre\/DEVENV/g'
 	sudo cp configs/serviceTxchback.sh /etc/systemd/system/txchback.service
 	sudo systemctl daemon-reload
+
 
 #install eid software
 eid:

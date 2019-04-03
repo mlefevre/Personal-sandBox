@@ -1,0 +1,85 @@
+#!/bin/sh
+#
+# chkconfig: 2345 80 30
+# description: idp mock 
+#
+# source function lib
+. /lib/lsb/init-functions
+
+RETVAL=0
+USER=mlefevre
+JAVA_PATH=/opt/jdk1.7.0_80/bin
+APPLICATION=mujina-idp-1.0.2-war-exec.jar
+APPLICATION_ROOT=/home/mlefevre/DEVENV/idp-1.0.2
+APPLICATION_LOG=$APPLICATION_ROOT/idp-mock.log
+PROCESS_NUM=$(pgrep -f "$APPLICATION"| wc -l) 
+
+start () {
+    if [ "$PROCESS_NUM" -eq 0 ]
+    then
+        echo "Service will start now"
+        cd $APPLICATION_ROOT
+        if [ "$(whoami)" != $USER ]; then
+            start_daemon $JAVA_PATH/java -jar $APPLICATION_ROOT/lib/mujina-idp-1.0.2-war-exec.jar -serverXmlPath=$APPLICATION_ROOT/config/server.xml -Dconfig=$APPLICATION_ROOT/config/default.json -DmockIdpEntityId=mockidp.localhost >> $APPLICATION_LOG 2>&1 &
+        else
+            nohup $JAVA_PATH/java -jar $APPLICATION_ROOT/lib/mujina-idp-1.0.2-war-exec.jar -serverXmlPath=$APPLICATION_ROOT/config/server.xml -Dconfig=$APPLICATION_ROOT/config/default.json -DmockIdpEntityId=mockidp.localhost >> $APPLICATION_LOG 2>&1 & >> $APPLICATION_LOG 2>&1 &
+        fi
+        echo "Service started. Please wait..."
+        sleep 30
+        RETVAL=$?
+        if [ -d "/var/lock/subsys" ] && [ `id -u` = 0 ] && [ $RETVAL -eq 0 ] ; then
+            touch /var/lock/subsys/idp-mock 
+        fi
+    else
+        echo "idp-mock appears to already be running"
+        exit 1
+    fi
+}
+
+stop () {
+    if [ "$PROCESS_NUM" -eq 1 ]
+    then
+        echo "Service will stop now (can take 1min)"
+    
+        pid=$(pgrep -f "$APPLICATION")
+        [ -n "$pid" ] && kill $pid
+        RETVAL=$?
+        echo "Service stopped. Please wait..."
+        sleep 10
+    else
+        echo "idp-mock not found, if running please kill manually"
+    fi
+}
+
+status()
+{
+    if [ "$PROCESS_NUM" -eq 1 ]
+    then
+        echo "idp-mock is running"
+        RETVAL=0
+    else
+        echo "idp-mock is stopped"
+        RETVAL=3
+    fi
+
+}
+
+case "$1" in
+    start)
+        start "$@"
+        ;;
+    stop)
+        stop "$@"
+        ;;
+    restart)
+        stop "$@"
+        start "$@"
+        ;;
+    status)
+        status
+        ;;
+    *)
+        echo $"Usage: $0 {start|stop|restart|status}"
+        RETVAL=$?
+esac
+exit $RETVAL

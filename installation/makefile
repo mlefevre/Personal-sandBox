@@ -47,6 +47,8 @@ tomcat8:
 	tar -zxf apache-tomcat-8.5.39.tar.gz -C $(ENV_FOLDER)/
 	mv $(ENV_FOLDER)/apache-tomcat-8.5.39/ $(ENV_FOLDER)/apache-tomcat/
 	mkdir -p $(ENV_FOLDER)/apache-tomcat/shared/classes/
+	# add shared/classes to the classpath
+	sed -i -E 's/(^common.loader=.*)/\1,\"${catalina.home}\/shared\/classes\"/g' $(ENV_FOLDER)/apache-tomcat/conf/catalina.properties
 tomcat7:
 	wget https://apache.cu.be/tomcat/tomcat-7/v7.0.93/bin/apache-tomcat-7.0.93.tar.gz
 	tar -xzf apache-tomcat-7.0.93.tar.gz -C $(ENV_FOLDER)

@@ -180,13 +180,13 @@ alfresco-xchange:
 	sed -i -E 's/(^db.password=).*/\1alfresco/g' $(ENV_FOLDER)/alfresco-enterprise-3.4.7/tomcat/shared/classes/alfresco-global.properties
 	sed -i -E 's/(^db.name=).*/\1alfresco/g' $(ENV_FOLDER)/alfresco-enterprise-3.4.7/tomcat/shared/classes/alfresco-global.properties
 	sed -i -E 's/(^db.url=).*/\1jdbc:mysql:\/\/localhost:3306\/alfresco/g' $(ENV_FOLDER)/alfresco-enterprise-3.4.7/tomcat/shared/classes/alfresco-global.properties
+	sed -i -E 's/8080/8082/g' $(ENV_FOLDER)/alfresco-enterprise-3.4.7/tomcat/shared/classes/alfresco/web-extension/share-config-custom.xml
 	sed -i -e 's/8080/8082/g' $(ENV_FOLDER)/alfresco-enterprise-3.4.7/tomcat/conf/server.xml
 	sed -i -e 's/8005/8007/g' $(ENV_FOLDER)/alfresco-enterprise-3.4.7/tomcat/conf/server.xml
 	sed -i -e 's/8443/8444/g' $(ENV_FOLDER)/alfresco-enterprise-3.4.7/tomcat/conf/server.xml
 	rgrep -l /data/alfresco $(ENV_FOLDER)/alfresco-enterprise-3.4.7/ | xargs sed -i 's/\/data\/alfresco/\/home\/mlefevre\/DEVENV/g'
 	sudo cp configs/serviceTxchback.sh /etc/systemd/system/txchback.service
 	sudo systemctl daemon-reload
-
 
 #install eid software
 eid:

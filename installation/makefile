@@ -108,6 +108,8 @@ apiTools:
 	sudo tar -zxf SoapUI-5.4.0-linux-bin.tar.gz -C /opt
 	sudo chown $(USER):$(USER) -R /opt/SoapUI-5.4.0/
 	wget https://github.com/wiztools/rest-client/releases/download/3.7.1/restclient-ui-fat-3.7.1.jar
+	# soapUI must run with a java 8
+	sed -i -E 's/^java/\/opt\/jdk1.8.0_202\/bin\/java/g' /opt/SoapUI-5.4.0/bin/soapui.sh
 # install onedrive (not working with business account)
 onedrive: 
 	git clone https://github.com/xybu92/onedrive-d.git

@@ -41,6 +41,19 @@ maven:
 	sudo tar -zxf apache-maven-3.6.0-bin.tar.gz -C /opt
 	sudo chown $(USER):$(USER) -R /opt/apache-maven-3.6.0
 	echo ============= WARNING : you may need to update your path to use mvn command ================
+
+# install ant (old version compatible with jdk < 1.8)
+ant:
+	wget https://apache.cu.be//ant/binaries/apache-ant-1.9.14-bin.tar.gz
+	sudo tar -zxf apache-ant-1.9.14-bin.tar.gz -C /opt
+	sudo chown $(USER):$(USER) -R /opt/apache-ant-1.9.14
+
+wkhtmltopdf:
+	wget http://security.ubuntu.com/ubuntu/pool/main/libp/libpng/libpng12-0_1.2.54-1ubuntu1.1_amd64.deb
+	sudo dpkg -i libpng12-0_1.2.54-1ubuntu1.1_amd64.deb
+	wget https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.2.1/wkhtmltox-0.12.2.1_linux-trusty-amd64.deb
+	sudo dpkg -i wkhtmltox-0.12.2.1_linux-trusty-amd64.deb
+
 # install tomcat
 tomcat8:
 	wget http://apache.cu.be/tomcat/tomcat-8/v8.5.39/bin/apache-tomcat-8.5.39.tar.gz
@@ -127,7 +140,7 @@ clone:
 	mkdir -p ~/DEV/bosXchange/ ; cd ~/DEV/bosXchange ; git clone ssh://git@stash.cirb.lan:7999/txchan/txchbackend.git ; git clone ssh://git@stash.cirb.lan:7999/txchan/txchin.git ; git clone ssh://git@stash.cirb.lan:7999/txchan/txchout.git ; git clone ssh://git@stash.cirb.lan:7999/txchan/txchweb.git
 
 # install alfresco for BOS
-alfresco-bos:
+alfresco-bos: wkhtmltopdf
 	wget http://repo.irisnet.be/apps/com.alfresco/alfresco-enterprise-4.2.7-installer-linux-x64.bin
 	sudo chmod 0755 alfresco-enterprise-4.2.7-installer-linux-x64.bin
 	./alfresco-enterprise-4.2.7-installer-linux-x64.bin --optionfile configs/installOptions
@@ -144,7 +157,6 @@ alfresco-bos:
 	# time for a first start
 	sudo systemctl start bosecr-back
 	sleep 100
-	sudo apt install wkhtmltopdf
 	cp configs/openoffice-document-formats.xml $(ENV_FOLDER)/alfresco-4.2.7/tomcat/webapps/alfresco/WEB-INF/classes/alfresco/mimetype/
 	cp configs/html2pdf-transform-context.xml $(ENV_FOLDER)/alfresco-4.2.7/tomcat/shared/classes/alfresco/extension/
 	rm -rf $(ENV_FOLDER)/alfresco-4.2.7/alf_data/solr/

@@ -12,6 +12,11 @@ alfresco: alfresco-bos alfresco-xchange
 # Install various console utilities tools
 consoleTools: vim git zsh gdebi
 
+# install CIRB intern certificate
+certif:
+	wget http://repo.irisnet.be/certs/CIRB_CIBG_ROOT_PKI.crt
+	sudo mv CIRB_CIBG_ROOT_PKI.crt /usr/local/share/ca-certificates/
+	sudo update-ca-certificates
 # install vi improved
 vim:
 	sudo apt install vim

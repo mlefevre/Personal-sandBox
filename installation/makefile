@@ -35,6 +35,7 @@ cicd-tools:
 	nix-env -i -f https://github.com/CIRB/cicd-shell/tarball/v2.5.11
 	curl -o ~/.config/cicd/shell.dhall https://raw.githubusercontent.com/CIRB/devbox/master/config/shell.dhall
 	sudo su -c "echo LOGINID=$(USER) >> /etc/environment"
+	mkdir -p ~/.config/nixpkgs ; cd ~/.config/nixpkgs/ ; git clone ssh://git@stash.cirb.lan:7999/devb/nixpkgs-config.git ; mv nixpkgs-config/* . ; rm -rf nixpkgs-config
 # install maven
 maven:
 	wget http://apache.belnet.be/maven/maven-3/3.6.0/binaries/apache-maven-3.6.0-bin.tar.gz

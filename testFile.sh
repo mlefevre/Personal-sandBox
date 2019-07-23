@@ -8,3 +8,4 @@ echo hello world !
 
 # This is a second modification. It will be reverted soon ...
 
+# This third modification should not be lost when I'll revert the previous commit

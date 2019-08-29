@@ -17,6 +17,8 @@ certif:
 	wget http://repo.irisnet.be/certs/CIRB_CIBG_ROOT_PKI.crt
 	sudo mv CIRB_CIBG_ROOT_PKI.crt /usr/local/share/ca-certificates/
 	sudo update-ca-certificates
+	# add certificate in cacerts of the installed jre (must be done for each jre)
+	keytool -importcert -alias cirbsslinspection -keystore /opt/jdk1.8.0_202/jre/lib/security/cacerts -storepass changeit -file /usr/local/share/ca-certificates/CIRB_CIBG_ROOT_PKI.crt
 # install vi improved
 vim:
 	sudo apt install vim

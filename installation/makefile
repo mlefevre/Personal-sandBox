@@ -64,9 +64,9 @@ wkhtmltopdf:
 
 # install tomcat
 tomcat8:
-	wget http://apache.cu.be/tomcat/tomcat-8/v8.5.39/bin/apache-tomcat-8.5.39.tar.gz
-	tar -zxf apache-tomcat-8.5.39.tar.gz -C $(ENV_FOLDER)/
-	mv $(ENV_FOLDER)/apache-tomcat-8.5.39/ $(ENV_FOLDER)/apache-tomcat/
+	wget http://apache.cu.be/tomcat/tomcat-8/v8.5.45/bin/apache-tomcat-8.5.45.tar.gz
+	tar -zxf apache-tomcat-8.5.45.tar.gz -C $(ENV_FOLDER)/
+	mv $(ENV_FOLDER)/apache-tomcat-8.5.45/ $(ENV_FOLDER)/apache-tomcat/
 	mkdir -p $(ENV_FOLDER)/apache-tomcat/shared/classes/
 	# add shared/classes to the classpath
 	sed -i -E 's/(^common.loader=.*)/\1,\"${catalina.home}\/shared\/classes\"/g' $(ENV_FOLDER)/apache-tomcat/conf/catalina.properties
@@ -152,6 +152,7 @@ alfresco-bos: wkhtmltopdf
 	wget http://repo.irisnet.be/apps/com.alfresco/alfresco-enterprise-4.2.7-installer-linux-x64.bin
 	sudo chmod 0755 alfresco-enterprise-4.2.7-installer-linux-x64.bin
 	./alfresco-enterprise-4.2.7-installer-linux-x64.bin --optionfile configs/installOptions
+	mkdir -p $(ENV_FOLDER)/alfresco-4.2.7/tomcat/shared/classes/
 	cp configs/alfresco-global.properties $(ENV_FOLDER)/alfresco-4.2.7/tomcat/shared/classes/
 	sudo chmod 0644 $(ENV_FOLDER)/alfresco-4.2.7/tomcat/shared/classes/alfresco-global.properties
 	rm $(ENV_FOLDER)/alfresco-4.2.7/tomcat/lib/postgresql*
@@ -216,6 +217,15 @@ eid:
 	sudo gdebi eid-archive_2019.1_all.deb
 	sudo apt update
 	sudo apt install eid-viewer
+# Install the last available version of Docker community
+docker:
+	sudo apt-get update
+	sudo apt-get install apt-transport-https ca-certificates curl gnupg-agent software-properties-common
+	curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+	sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+	sudo apt-get update
+	sudo apt-get install docker-ce docker-ce-cli containerd.io
+
 # Remove unnecessary file after installation
 clean:
 	rm eclipse-jee-oxygen-3a-linux-gtk-x86_64.tar.gz

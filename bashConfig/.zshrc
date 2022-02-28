@@ -11,3 +11,4 @@ zstyle :compinstall filename '/home/mlefevre/.zshrc'
 autoload -Uz compinit
 compinit
 # End of lines added by compinstall
+if [ -e /home/mlefevre/.nix-profile/etc/profile.d/nix.sh ]; then . /home/mlefevre/.nix-profile/etc/profile.d/nix.sh; fi # added by Nix installer

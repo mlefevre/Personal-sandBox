@@ -106,3 +106,10 @@ export GIT_PS1_SHOWDIRTYSTATE=1
 export PS1='\[\e[0;33m\][\t]\[\e[1;34m\] @ \w \[\e[1;33m\]$(__git_ps1 " (%s)")\[\e[0;32m\]\n\u $\[\e[0m\] '
 
 if [ -e $HOME/.nix-profile/etc/profile.d/nix.sh ]; then . $HOME/.nix-profile/etc/profile.d/nix.sh; fi
+
+# Hook direnv on bash console ; see direnv.net
+eval "$(direnv hook bash)"
+
+# define Nix path variable for overlay definition
+export NIX_PATH=$NIX_PATH:nixpkgs-overlays=http://stash.cirb.lan/CICD/nixpkgs-overlays/archive/20.09.tar.gz
+

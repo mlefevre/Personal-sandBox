@@ -45,9 +45,9 @@ cicd-tools:
 	mkdir -p ~/.config/nixpkgs ; cd ~/.config/nixpkgs/ ; git clone ssh://git@stash.cirb.lan:7999/devb/nixpkgs-config.git ; mv nixpkgs-config/* . ; rm -rf nixpkgs-config
 # install maven
 maven:
-	wget http://apache.belnet.be/maven/maven-3/3.6.0/binaries/apache-maven-3.6.0-bin.tar.gz
-	sudo tar -zxf apache-maven-3.6.0-bin.tar.gz -C /opt
-	sudo chown $(USER):$(USER) -R /opt/apache-maven-3.6.0
+	wget https://downloads.apache.org/maven/maven-3/3.8.1/binaries/apache-maven-3.8.1-bin.tar.gz
+	sudo tar -zxf apache-maven-3.8.1-bin.tar.gz -C /opt
+	sudo chown $(USER):$(USER) -R /opt/apache-maven-3.8.1
 	echo ============= WARNING : you may need to update your path to use mvn command ================
 
 # install ant (old version compatible with jdk < 1.8)
@@ -83,6 +83,8 @@ psql:
 	# Require to provide password for alfresco DB user
 	sudo -u postgres createuser -Sdr -P alfresco
 	sudo -u postgres createdb -O alfresco alfresco
+	sudo -u postgres createuser -Sdr -P bos_front
+	sudo -u postgres createdb -O bos_front PGBOS_FRONT
 	wget https://kent.dl.sourceforge.net/project/squirrel-sql/1-stable/3.9.0/squirrel-sql-3.9.0-standard.jar
 	sudo java -jar squirrel-sql-3.9.0-standard.jar
 mysql:
@@ -179,6 +181,7 @@ alfresco-bos: wkhtmltopdf
 	cp configs/local-bric-bosecr.properties $(ENV_FOLDER)/alfresco-4.2.7/tomcat/shared/classes/
 	cp configs/local-bric-bosecr-back.properties $(ENV_FOLDER)/alfresco-4.2.7/tomcat/shared/classes/
 	cp configs/local-log4j.properties $(ENV_FOLDER)/alfresco-4.2.7/tomcat/shared/classes/alfresco/extension/
+	# NOTICE : you need now to deploy the project and set the reindex parameter to FULL in alfresco-global.properties 
 
 # install alfresco for BosXchange
 alfresco-xchange:
@@ -225,6 +228,7 @@ docker:
 	sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
 	sudo apt-get update
 	sudo apt-get install docker-ce docker-ce-cli containerd.io
+	sudo usermod -aG docker $(USER)
 
 # Remove unnecessary file after installation
 clean:

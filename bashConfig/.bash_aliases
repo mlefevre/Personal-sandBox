@@ -12,3 +12,4 @@ alias pull='git stash; git pull; git stash pop'
 
 alias movieEncoding='ffprobe -show_entries stream=codec_name,codec_tag_string,bit_rate -v error'
 alias heyaml='/home/mlefevre/DEV/devops/puppet-stack-bos/bin/eyaml.sh'
+alias build='mvn clean package -DskipTests'

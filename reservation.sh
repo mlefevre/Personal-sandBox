@@ -1,13 +1,23 @@
 #!/bin/sh
 
-##
+###################################
 # To use to reserve seat at cirb
+# 
+# Parameters:
+#	1. Desired date: (optional) the booking desired date in format yyyy-mm-dd. If not provided, the date 15 days ahead from now is used.
 ##
 # Author : mlefevre@cirb.brussels
-##
+###################################
 
-#DESIRED_DATE=${1}
-DESIRED_DATE=$(date -u +'%Y-%m-%dT%T.%3NZ' -d "+ 15 days")
+
+DESIRED_DATE=${1:-$(date -u +'%Y-%m-%d' -d "+ 15 days")}
+# check provided date:
+date -d $DESIRED_DATE > /dev/null 2>&1
+if [ "$?" != 0 ];
+then
+	echo ${1} is not a valid date. Date should be provided in yyyy-mm-dd format.
+	exit 1
+fi
 CREATION_DATE=$(date -u +'%Y-%m-%dT%T.%3NZ')
 POST_CONTENT='{"creationDate":"'$CREATION_DATE'","communityManagerConfirmationNeeded":false,"communityManagerConfirmed":false,"organizerConfirmationNeeded":false,"organizerConfirmed":false,"finalized":false,"bookingStart":"'$DESIRED_DATE'T06:00:00.000Z","bookingEnd":"'$DESIRED_DATE'T16:00:00.000Z","confirmUrl":"https://cibg-cirb-brussels.meeting.myc1.eu/#/confirmation/","started":false,"cancelled":false,"meetingRoomId":307,"roomLayoutId":313,"organizer":{"email":"mlefevre@paradigm.brussels","firstName":"Marc","lastName":"LEFEVRE","uuaid":513,"mdcompanyId":1,"organizer":true}}'
 

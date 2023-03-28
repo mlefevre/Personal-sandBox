@@ -25,7 +25,7 @@ then
 	exit 1
 fi
 ORGANIZER='{"email":"'$USER_MAIL'","firstName":"'$USER_FIRSTNAME'","lastName":"'$USER_LASTNAME'","uuaid":513,"mdcompanyId":1,"organizer":true}'
-POST_CONTENT='{"creationDate":"'$CREATION_DATE'","communityManagerConfirmationNeeded":false,"communityManagerConfirmed":false,"organizerConfirmationNeeded":false,"organizerConfirmed":false,"finalized":false,"bookingStart":"'$DESIRED_DATE'T06:00:00.000Z","bookingEnd":"'$DESIRED_DATE'T16:00:00.000Z","confirmUrl":"https://cibg-cirb-brussels.meeting.myc1.eu/#/confirmation/","started":false,"cancelled":false,"meetingRoomId":307,"roomLayoutId":313,"organizer":'$ORGANIZER'}'
+POST_CONTENT='{"creationDate":"'$CREATION_DATE'","communityManagerConfirmationNeeded":false,"communityManagerConfirmed":false,"organizerConfirmationNeeded":false,"organizerConfirmed":false,"finalized":true,"bookingStart":"'$DESIRED_DATE'T06:00:00.000Z","bookingEnd":"'$DESIRED_DATE'T16:00:00.000Z","confirmUrl":"https://cibg-cirb-brussels.meeting.myc1.eu/#/confirmation/","started":false,"cancelled":false,"meetingRoomId":307,"roomLayoutId":313,"organizer":'$ORGANIZER'}'
 
 echo Booking a seat for the $DESIRED_DATE
 echo ----- debug infos -----

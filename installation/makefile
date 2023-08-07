@@ -88,12 +88,27 @@ psql:
 	wget https://kent.dl.sourceforge.net/project/squirrel-sql/1-stable/3.9.0/squirrel-sql-3.9.0-standard.jar
 	sudo java -jar squirrel-sql-3.9.0-standard.jar
 mysql:
-	sudo apt install mysql-server
+	#cannot install last mysql version: doesn't work with java 6 (driver not compatible).
+	# must install mysql 5.7 which is not available in Ubuntu >=20.04
+	wget https://dev.mysql.com/get/mysql-apt-config_0.8.12-1_all.deb	# add mysql repo
+	sudo dpkg -i mysql-apt-config_0.8.12-1_all.deb
+	sudo apt update # may provoke an error with NO PUBKEY message and a key id
+	# sudo apt-key list	# to check the available key, see if a key is outdated for mysql
+	# add the missing key from ubuntu key server and its id (provided in error message)
+	# sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 467B942D3A79BD29
+	# sudo apt-key list	# check the result
+	# sudo apt-key del 'A4A9 4068 76FC BD3C 4567  70C8 8C71 8D3B 5072 E1F5' #	if needed, remove the outdated key
+	# sudo apt update
+	sudo apt-cache policy mysql-server	# check available mysql versions
+	sudo apt install -f mysql-client=5.7.42-1ubuntu18.04
+	sudo apt install -f mysql-server=5.7.42-1ubuntu18.04
 	sudo systemctl start mysql
 	sudo systemctl enable mysql
-	sudo mysql -e "CREATE USER alfresco@127.0.0.1 identified by 'alfresco';"
+	sudo mysql -e "CREATE USER 'alfresco'@'localhost' identified by 'alfresco';"
+	sudo mysql -e "CREATE USER 'txch'@'localhost' identified by 'txch';"
 	sudo mysql -e "CREATE DATABASE alfresco ; GRANT ALL PRIVILEGES ON alfresco.* TO alfresco@localhost; FLUSH PRIVILEGES"
-	# The password of root user must be set to 'root' : UPDATE mysql.user SET authentication_string=PASSWORD('root') WHERE user="root";
+	sudo mysql -e "CREATE DATABASE txch ; GRANT ALL PRIVILEGES ON txch.* TO txch@localhost; FLUSH PRIVILEGES"
+	# The password of root user must be set to 'root' : sudo mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED BY 'root'";
 rabbitmq:
 	sudo apt install rabbitmq-server
 	sudo rabbitmq-plugins enable rabbitmq_management
@@ -187,9 +202,12 @@ alfresco-bos: wkhtmltopdf
 alfresco-xchange:
 	wget http://repo.irisnet.be/apps/com.alfresco/alfresco-enterprise-3.4.7.zip
 	unzip -q alfresco-enterprise-3.4.7.zip -d $(ENV_FOLDER)/
+#	wget https://cdn.mysql.com/archives/mysql-connector-java-8.0/mysql-connector-j-8.0.33.tar.gz
+#	tar -zxf mysql-connector-j-8.0.33.tar.gz
+#	cp mysql-connector-j-8.0.33/mysql-connector-j-8.0.33.jar ~/DEVENV/alfresco-enterprise-3.4.7/tomcat/lib/
 	wget http://repo.irisnet.be/apps/com.alfresco/mysql-connector-java-5.1.18-bin.jar
 	cp mysql-connector-java-5.1.18-bin.jar $(ENV_FOLDER)/alfresco-enterprise-3.4.7/tomcat/lib/
-	wget https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/share-extras/javascript-console-0.4.2.jar
+	wget https://repo.irisnet.be/apps/com.alfresco/javascript-console-0.4.2.jar
 	mkdir $(ENV_FOLDER)/alfresco-enterprise-3.4.7/tomcat/shared/lib
 	mv javascript-console-0.4.2.jar $(ENV_FOLDER)/alfresco-enterprise-3.4.7/tomcat/shared/lib/
 	mkdir $(ENV_FOLDER)/alfresco-enterprise-3.4.7/tomcat/shared/classes/alfresco/extension/license
